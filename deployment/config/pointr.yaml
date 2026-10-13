@@ -1,0 +1,6 @@
+pointr_node:
+  ros__parameters:
+    engine_path: ""  # 必须指定在目标设备构建的 engine
+    input_topic: /object/points_camera  # 单个目标的相机光学坐标系 XYZ，单位米
+    output_topic: /pointr/completed_points
+    expected_frame: camera_depth_optical_frame  # 修改为输入点云真实的 optical frame

@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+outputs/
+assets/object_centered.stl
+scene.xml

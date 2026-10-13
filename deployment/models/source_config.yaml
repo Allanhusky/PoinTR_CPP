@@ -1,0 +1,58 @@
+# 只控制训练：python main.py --config cfgs/MuJoCo_models/train.yaml
+# 数据制作完成后，将 dataset_path 改为 dataset.yaml 的 output 路径。
+# 相对路径以项目根目录为基准；当前指向已生成的数据集，可直接使用。
+dataset_path: data/MuJoCoObject/dataset_v8_far
+
+runtime:
+  exp_name: mujoco_v8_far_finetune
+  num_workers: 2
+  seed: 42
+  deterministic: false
+  val_freq: 1                  # 每隔多少个 epoch 验证
+  resume: false               # 从同名实验的断点恢复；沿用实验保存的配置
+  start_ckpts: experiments/train/MuJoCo_models/mujoco_v7_front_finetune/ckpt-best.pth # 从大平面微调后的最佳权重继续微调
+  test: false
+  ckpts: null                 # test=true 时必须提供权重路径
+
+total_bs: 16                   # 单 GPU batch size；1710 个训练样本，每轮 106 次更新（drop_last=true）
+max_epoch: 149                 # 含 epoch 0，远距离专项微调 150 个 epoch
+step_per_update: 1            # 梯度累积次数
+grad_norm_clip: 10
+consider_metric: CDL1         # 最佳权重仍按 Chamfer 指标选择
+
+loss:
+  repulsion:
+    enabled: true            # false 恢复原始 Chamfer 损失，便于对照
+    k: 5                     # 邻居数；排除自身，包含跨 query 的生成点
+    radius: 0.02             # 归一化坐标中的最小间距软约束
+    weight: 0.005            # 排斥项最终权重；需结合日志和结果调整
+    warmup_epochs: 20        # 前 20 轮线性增加至最终权重
+    anchor_points: 1024      # 随机锚点数；0 对全部生成点计算
+    chunk_size: 256          # 分块近邻搜索，控制额外显存
+
+optimizer:
+  type: AdamW
+  kwargs:
+    lr: 0.000025
+    weight_decay: 0.0005
+scheduler:
+  type: LambdaLR
+  kwargs:
+    decay_step: 21
+    lr_decay: 0.76
+    lowest_decay: 0.02
+bnmscheduler:
+  type: Lambda
+  kwargs:
+    decay_step: 21
+    bn_decay: 0.5
+    bn_momentum: 0.9
+    lowest_decay: 0.01
+
+model:
+  NAME: PoinTr
+  num_pred: 6144              # 折叠生成点数；默认加上 2048 输入点得到 8192 点
+  num_query: 96
+  knn_layer: 1
+  trans_dim: 384
+

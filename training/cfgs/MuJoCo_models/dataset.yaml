@@ -1,0 +1,15 @@
+# 只用于制作数据集：python tools/prepare_mujoco_dataset.py --config cfgs/MuJoCo_models/dataset.yaml
+# 相对路径以项目根目录为基准；output 必须是新目录，重新制作时更换版本号。
+source: mojoco_sim/outputs/collection_v8_far
+output: data/MuJoCoObject/dataset_v8_far
+sim_config: mojoco_sim/config.json
+frame: camera                 # object 或 camera；推理时保持同一坐标系
+input_points: 2048
+gt_points: 8192
+min_raw_points: 64            # 保留远距离稀疏观测；不足 2048 点时重复实际点补足
+sector_deg: 15                # 更细的角度分组，整组留在同一个集合
+train_ratio: 0.7
+val_ratio: 0.15
+seed: 54                     # 0°/180° 正对大面的区间进入训练，相邻角度用于评估
+all_profiles: false
+include_demos: false

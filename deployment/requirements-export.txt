@@ -1,0 +1,3 @@
+# 安装到已经部署完成的 pointr 训练环境；PyTorch/Pointnet2 由根目录安装脚本提供。
+onnx==1.16.2
+plotly==7.1.0

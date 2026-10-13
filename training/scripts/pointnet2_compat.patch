@@ -1,0 +1,134 @@
+diff --git a/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/cuda_utils.h b/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/cuda_utils.h
+index 0fd5b6e..e09b5b6 100644
+--- a/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/cuda_utils.h
++++ b/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/cuda_utils.h
+@@ -2,7 +2,7 @@
+ #define _CUDA_UTILS_H
+ 
+ #include <ATen/ATen.h>
+-#include <ATen/cuda/CUDAContext.h>
++#include <c10/cuda/CUDAStream.h>
+ #include <cmath>
+ 
+ #include <cuda.h>
+diff --git a/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/utils.h b/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/utils.h
+index 5f080ed..633f1e8 100644
+--- a/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/utils.h
++++ b/pointnet2_ops_lib/pointnet2_ops/_ext-src/include/utils.h
+@@ -1,5 +1,5 @@
+ #pragma once
+-#include <ATen/cuda/CUDAContext.h>
++#include <c10/cuda/CUDAStream.h>
+ #include <torch/extension.h>
+ 
+ #define CHECK_CUDA(x)                                    \
+diff --git a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/ball_query_gpu.cu b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/ball_query_gpu.cu
+index 559aef9..315307f 100644
+--- a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/ball_query_gpu.cu
++++ b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/ball_query_gpu.cu
+@@ -46,7 +46,7 @@ __global__ void query_ball_point_kernel(int b, int n, int m, float radius,
+ void query_ball_point_kernel_wrapper(int b, int n, int m, float radius,
+                                      int nsample, const float *new_xyz,
+                                      const float *xyz, int *idx) {
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+   query_ball_point_kernel<<<b, opt_n_threads(m), 0, stream>>>(
+       b, n, m, radius, nsample, new_xyz, xyz, idx);
+ 
+diff --git a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/group_points_gpu.cu b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/group_points_gpu.cu
+index 57c2b1b..272119c 100644
+--- a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/group_points_gpu.cu
++++ b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/group_points_gpu.cu
+@@ -30,7 +30,7 @@ __global__ void group_points_kernel(int b, int c, int n, int npoints,
+ void group_points_kernel_wrapper(int b, int c, int n, int npoints, int nsample,
+                                  const float *points, const int *idx,
+                                  float *out) {
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+ 
+   group_points_kernel<<<b, opt_block_config(npoints, c), 0, stream>>>(
+       b, c, n, npoints, nsample, points, idx, out);
+@@ -66,7 +66,7 @@ __global__ void group_points_grad_kernel(int b, int c, int n, int npoints,
+ void group_points_grad_kernel_wrapper(int b, int c, int n, int npoints,
+                                       int nsample, const float *grad_out,
+                                       const int *idx, float *grad_points) {
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+ 
+   group_points_grad_kernel<<<b, opt_block_config(npoints, c), 0, stream>>>(
+       b, c, n, npoints, nsample, grad_out, idx, grad_points);
+diff --git a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/interpolate_gpu.cu b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/interpolate_gpu.cu
+index 81c5548..c97d1ba 100644
+--- a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/interpolate_gpu.cu
++++ b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/interpolate_gpu.cu
+@@ -60,7 +60,7 @@ __global__ void three_nn_kernel(int b, int n, int m,
+ 
+ void three_nn_kernel_wrapper(int b, int n, int m, const float *unknown,
+                              const float *known, float *dist2, int *idx) {
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+   three_nn_kernel<<<b, opt_n_threads(n), 0, stream>>>(b, n, m, unknown, known,
+                                                       dist2, idx);
+ 
+@@ -103,7 +103,7 @@ __global__ void three_interpolate_kernel(int b, int c, int m, int n,
+ void three_interpolate_kernel_wrapper(int b, int c, int m, int n,
+                                       const float *points, const int *idx,
+                                       const float *weight, float *out) {
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+   three_interpolate_kernel<<<b, opt_block_config(n, c), 0, stream>>>(
+       b, c, m, n, points, idx, weight, out);
+ 
+@@ -146,7 +146,7 @@ void three_interpolate_grad_kernel_wrapper(int b, int c, int n, int m,
+                                            const float *grad_out,
+                                            const int *idx, const float *weight,
+                                            float *grad_points) {
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+   three_interpolate_grad_kernel<<<b, opt_block_config(n, c), 0, stream>>>(
+       b, c, n, m, grad_out, idx, weight, grad_points);
+ 
+diff --git a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu
+index fc573f0..66ee9b3 100644
+--- a/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu
++++ b/pointnet2_ops_lib/pointnet2_ops/_ext-src/src/sampling_gpu.cu
+@@ -23,7 +23,7 @@ void gather_points_kernel_wrapper(int b, int c, int n, int npoints,
+                                   const float *points, const int *idx,
+                                   float *out) {
+   gather_points_kernel<<<dim3(b, c, 1), opt_n_threads(npoints), 0,
+-                         at::cuda::getCurrentCUDAStream()>>>(b, c, n, npoints,
++                         c10::cuda::getCurrentCUDAStream()>>>(b, c, n, npoints,
+                                                              points, idx, out);
+ 
+   CUDA_CHECK_ERRORS();
+@@ -50,7 +50,7 @@ void gather_points_grad_kernel_wrapper(int b, int c, int n, int npoints,
+                                        const float *grad_out, const int *idx,
+                                        float *grad_points) {
+   gather_points_grad_kernel<<<dim3(b, c, 1), opt_n_threads(npoints), 0,
+-                              at::cuda::getCurrentCUDAStream()>>>(
++                              c10::cuda::getCurrentCUDAStream()>>>(
+       b, c, n, npoints, grad_out, idx, grad_points);
+ 
+   CUDA_CHECK_ERRORS();
+@@ -177,7 +177,7 @@ void furthest_point_sampling_kernel_wrapper(int b, int n, int m,
+                                             int *idxs) {
+   unsigned int n_threads = opt_n_threads(n);
+ 
+-  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++  cudaStream_t stream = c10::cuda::getCurrentCUDAStream();
+ 
+   switch (n_threads) {
+     case 512:
+diff --git a/pointnet2_ops_lib/setup.py b/pointnet2_ops_lib/setup.py
+index faf7154..710d2be 100644
+--- a/pointnet2_ops_lib/setup.py
++++ b/pointnet2_ops_lib/setup.py
+@@ -16,7 +16,7 @@ requirements = ["torch>=1.4"]
+ 
+ exec(open(osp.join("pointnet2_ops", "_version.py")).read())
+ 
+-os.environ["TORCH_CUDA_ARCH_LIST"] = "3.7+PTX;5.0;6.0;6.1;6.2;7.0;7.5"
++os.environ.setdefault("TORCH_CUDA_ARCH_LIST", "7.5;8.6;8.9")
+ setup(
+     name="pointnet2_ops",
+     version=__version__,

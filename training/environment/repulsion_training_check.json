@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "checkpoint_compatibility": "strict load of existing v5 weights",
+  "input_shape": [
+    2,
+    2048,
+    3
+  ],
+  "output_shapes": [
+    [
+      2,
+      192,
+      3
+    ],
+    [
+      2,
+      8192,
+      3
+    ]
+  ],
+  "loss_coarse": 0.045922063291072845,
+  "loss_dense": 0.08406771719455719,
+  "repulsion_raw": 0.0014351368881762028,
+  "repulsion_weight": 0.005,
+  "total_loss": 0.12999695539474487,
+  "peak_smoke_allocated_mb": 655.841796875,
+  "settings": {
+    "enabled": true,
+    "k": 5,
+    "radius": 0.02,
+    "weight": 0.005,
+    "warmup_epochs": 20,
+    "anchor_points": 1024,
+    "chunk_size": 256
+  },
+  "formal_training_started": false,
+  "checkpoint_written": false,
+  "repulsion_only_batch16": {
+    "forward_backward_ms": 8.357772836461663,
+    "peak_extra_allocated_mb": 100.2685546875,
+    "finite_gradient": true
+  }
+}

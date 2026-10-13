@@ -1,0 +1,20 @@
+{
+  "pose": {
+    "azimuth_deg": 198.0,
+    "elevation_deg": 25.0,
+    "distance_m": 2.7
+  },
+  "frame": "camera_optical",
+  "physical_units": "m",
+  "normalized_input_normalization": {
+    "centroid": [
+      -0.0013379486044868827,
+      -0.000981090939603746,
+      2.6732397079467773
+    ],
+    "radius_m": 0.14251607656478882,
+    "frame": "camera"
+  },
+  "source": "mojoco_sim/outputs/collection_v8_far/batch_1791806335576047344/0564",
+  "sample_id": "62f9076ca28cd7ed"
+}

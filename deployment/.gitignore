@@ -1,0 +1,6 @@
+build*/
+.venv/
+__pycache__/
+*.engine
+*.onnx
+tests/results/

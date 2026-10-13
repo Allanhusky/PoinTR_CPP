@@ -1,0 +1,34 @@
+{
+  "python": "3.9.0",
+  "torch": "2.1.2+cu118",
+  "cuda": "11.8",
+  "gpu": "NVIDIA GeForce RTX 4070 Ti SUPER",
+  "gpu_capability": [
+    8,
+    9
+  ],
+  "parameters": 42104454,
+  "input_shape": [
+    1,
+    2048,
+    3
+  ],
+  "output_shapes": [
+    [
+      1,
+      192,
+      3
+    ],
+    [
+      1,
+      8192,
+      3
+    ]
+  ],
+  "loss_coarse": 0.12863528728485107,
+  "loss_dense": 0.1557411402463913,
+  "peak_allocated_mb": 657.296875,
+  "peak_reserved_mb": 742.0,
+  "sample": "mojoco_sim/outputs/upright_demo/view_1791603797235923337",
+  "status": "PASS: imports, FPS/gather, EMD, forward, loss, backward, AdamW step"
+}
